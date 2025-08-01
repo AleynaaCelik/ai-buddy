@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Send, Bot, User } from 'lucide-react'
 
 interface Message {
@@ -26,6 +26,7 @@ export default function Home() {
     e.preventDefault()
     if (!input.trim() || isLoading) return
 
+    // Kullanıcı mesajını ekle
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input,
@@ -39,6 +40,7 @@ export default function Home() {
     setIsLoading(true)
 
     try {
+      // Gerçek OpenAI API çağrısı
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -58,6 +60,7 @@ export default function Home() {
         throw new Error(data.error || 'API çağrısı başarısız')
       }
 
+      // AI cevabını ekle
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.message,
@@ -68,9 +71,10 @@ export default function Home() {
       setMessages(prev => [...prev, aiMessage])
     } catch (error) {
       console.error('Chat error:', error)
+      // Hata mesajı göster
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Üzgünüm, bir hata oluştu. API key'inizi kontrol edin.`,
+        content: `Üzgünüm, bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}. API key'inizi kontrol edin.`,
         role: 'assistant',
         timestamp: new Date()
       }
@@ -83,6 +87,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto max-w-4xl p-4">
+        {/* Header */}
         <div className="text-center py-6">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             AI Buddy 🤖
@@ -90,7 +95,9 @@ export default function Home() {
           <p className="text-gray-600">Akıllı sohbet asistanınız</p>
         </div>
 
+        {/* Chat Container */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Messages Area */}
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
               <div
@@ -99,6 +106,7 @@ export default function Home() {
                   message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
                 }`}
               >
+                {/* Avatar */}
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                   message.role === 'user' 
                     ? 'bg-blue-500 text-white' 
@@ -107,6 +115,7 @@ export default function Home() {
                   {message.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                 </div>
                 
+                {/* Message Bubble */}
                 <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
                   message.role === 'user'
                     ? 'bg-blue-500 text-white ml-auto'
@@ -123,6 +132,7 @@ export default function Home() {
               </div>
             ))}
             
+            {/* Loading indicator */}
             {isLoading && (
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center">
@@ -131,14 +141,15 @@ export default function Home() {
                 <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded-2xl">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
+          {/* Input Area */}
           <div className="border-t bg-gray-50 p-4">
             <form onSubmit={handleSubmit} className="flex space-x-2">
               <input
